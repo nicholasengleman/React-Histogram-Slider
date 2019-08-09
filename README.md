@@ -1,2 +1,0 @@
-# HistogramSlider
-Created with CodeSandbox

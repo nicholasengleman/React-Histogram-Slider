@@ -1,0 +1,25 @@
+.sliderBtn-container {
+  position: absolute;
+  top: 0;
+  left: 200;
+}
+/* 
+.sliderBtn-container-left {
+  left: 0;
+}
+
+.sliderBtn-container-right {
+  right: 0;
+} */
+
+.slider-btn {
+  border: 1px solid black;
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  outline: none;
+}
+
+.slider-btn:hover {
+  cursor: pointer;
+}
