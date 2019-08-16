@@ -17,23 +17,89 @@ class Histogram extends Component {
       maxAbsValue: this.findMaxValue(this.props.data, true),
       maxValue: this.findMaxValue(this.props.data, false),
       minValue: this.findMinValue(this.props.data, false),
-      leftBoundry: -1,
-      rightBoundry: 0
+      leftBoundry: 0,
+      rightBoundry: 0,
+      sliderContainerLeftPosition: 0,
+      sliderContainerRightPosition: 0,
+      translateX_button_right: 0,
+      translateX_button_left: 0,
+      inputFocus: false,
+      leftInputValue: 0,
+      rightInputValue: 0
     };
+
+    this.leftButtonAdjustment = 27;
+    this.rightButtonAdjustment = 0;
   }
 
   componentDidMount() {
     this.normalizeData(this.state.sortedData);
-    this.setState({ rightBoundry: this.props.data.length });
+    this.setState({ rightBoundry: this.props.data.length - 1 });
     this.calculateBarWidth();
+    //window.addEventListener("resize", this.calculateBarWidth());
   }
 
-  getLeftBoundry = bar => {
-    this.setState({ leftBoundry: bar });
+  getSliderBarDimensions = (
+    sliderBarWidth,
+    sliderContainerRightPosition,
+    sliderContainerLeftPosition
+  ) => {
+    this.setState({
+      sliderBarWidth,
+      sliderContainerRightPosition,
+      sliderContainerLeftPosition
+    });
   };
 
-  getRightBoundry = bar => {
-    this.setState({ rightBoundry: bar });
+  findLeftBarFromInput = e => {
+    this.setState({ leftInputValue: e.target.value });
+    let leftBoundry = this.state.sortedData.findIndex(el => {
+      return el.value >= e.target.value;
+    });
+    this.setState({ leftBoundry }, () =>
+      this.calculateClientXFromBoundry(leftBoundry, "button_left")
+    );
+  };
+
+  findRightBarFromInput = e => {
+    let rightBoundry = 0;
+    this.setState({ rightInputValue: e.target.value });
+    for (let i = this.state.sortedData.length - 1; i > 0; i--) {
+      if (this.state.sortedData[i].value <= e.target.value) {
+        rightBoundry = i;
+        break;
+      }
+    }
+    this.setState({ rightBoundry }, () =>
+      this.calculateClientXFromBoundry(rightBoundry, "button_right")
+    );
+  };
+
+  calculateClientXFromBoundry = (boundry, btn) => {
+    let clientX =
+      this.state.sliderBarWidth * (boundry / this.props.data.length);
+
+    this.calculateTranslateX({ clientX }, btn);
+  };
+
+  findCurrentBar = (translateX, buttonAdjustment) => {
+    translateX = translateX + buttonAdjustment;
+
+    //resizes histogram computations to be less wide than slider
+    let percentageShrink = 0.9;
+    let shrunkSliderBarWidth = this.state.sliderBarWidth * percentageShrink;
+    let endBuffer = (this.state.sliderBarWidth - shrunkSliderBarWidth) / 2;
+    let shrunkAbsoluteDistanceTravelled = translateX - endBuffer;
+    let percentageTravelled =
+      shrunkAbsoluteDistanceTravelled / shrunkSliderBarWidth;
+
+    if (percentageTravelled > 0 && percentageTravelled < 1) {
+      return Math.floor(this.state.sortedData.length * percentageTravelled);
+    } else if (percentageTravelled <= 0) {
+      return 0;
+    } else if (percentageTravelled >= 1) {
+      return this.state.sortedData.length - 1;
+    }
   };
 
   sortData = data => {
@@ -106,8 +172,64 @@ class Histogram extends Component {
         }
       });
     }
-
     return min;
+  };
+
+  handleInputFocus = () => {
+    this.setState(prevState => ({
+      inputFocus: !prevState.inputFocus
+    }));
+  };
+
+  calculateTranslateX = ({ clientX }, btn_id) => {
+    //calculates position of buttons
+    if (
+      this.state.sliderContainerLeftPosition < clientX &&
+      clientX < this.state.sliderContainerRightPosition
+    ) {
+      this.setState(
+        {
+          [`translateX_${btn_id}`]:
+            clientX - this.state.sliderContainerLeftPosition
+        },
+        () => console.log(this.state[`translateX_${btn_id}`])
+      );
+    } else if (clientX < this.state.sliderContainerLeftPosition) {
+      this.setState({ [`translateX_${btn_id}`]: 0 });
+    } else if (this.state.sliderContainerRightPosition < clientX) {
+      this.setState({
+        [`translateX_${btn_id}`]:
+          this.state.sliderContainerRightPosition -
+          this.state.sliderContainerLeftPosition -
+          12.5
+      });
+    }
+  };
+
+  handleCalculateTranslateX = ({ clientX }, btn_id) => {
+    //calculates position of left and right boundries in histogram and input values
+
+    this.calculateTranslateX({ clientX }, btn_id);
+
+    if (btn_id === "button_left") {
+      let leftCurrentBar = this.findCurrentBar(
+        this.state[`translateX_${btn_id}`],
+        this.leftButtonAdjustment
+      );
+      this.setState({
+        leftBoundry: leftCurrentBar,
+        leftInputValue: this.state.sortedData[leftCurrentBar].value
+      });
+    } else {
+      let rightCurrentBar = this.findCurrentBar(
+        this.state[`translateX_${btn_id}`],
+        this.rightButtonAdjustment
+      );
+      this.setState({
+        rightBoundry: rightCurrentBar,
+        rightInputValue: this.state.sortedData[rightCurrentBar].value
+      });
+    }
   };
 
   render() {
@@ -116,7 +238,6 @@ class Histogram extends Component {
         <div ref={this.histogram} className="histogram">
           {this.state.normalizedData.map((bar, index) => {
             let barMarginTop, barMarginBottom, color;
-
             if (bar.value > 0) {
               barMarginTop = 0;
               barMarginBottom = Math.abs(bar.value);
@@ -126,8 +247,8 @@ class Histogram extends Component {
             }
 
             if (
-              (this.state.leftBoundry < index &&
-                index < this.state.rightBoundry) ||
+              (this.state.leftBoundry <= index &&
+                index <= this.state.rightBoundry) ||
               (this.state.leftBoundry === 0 && this.state.rightBoundry === 0)
             ) {
               if (bar.value > 0) {
@@ -143,6 +264,7 @@ class Histogram extends Component {
 
             return (
               <div
+                key={index}
                 style={{
                   height: barHeight,
                   marginBottom: barMarginBottom,
@@ -157,11 +279,30 @@ class Histogram extends Component {
         </div>
         <Slider
           sortedData={this.state.sortedData}
-          getLeftBoundry={this.getLeftBoundry}
-          getRightBoundry={this.getRightBoundry}
+          getSliderBarDimensions={this.getSliderBarDimensions}
+          leftButtonAdjustment={this.leftButtonAdjustment}
+          rightButtonAdjustment={this.rightButtonAdjustment}
+          handleCalculateTranslateX={this.handleCalculateTranslateX}
+          translateXLeft={this.state.translateX_button_left}
+          translateXRight={
+            this.state.translateX_button_right - this.rightButtonAdjustment
+          }
         />
-        <div className="total">
-        {Math.abs(this.state.leftBoundry - this.state.rightBoundry - 1)} cryptos
+        <div className="inputs">
+          <input
+            onChange={e => this.findLeftBarFromInput(e)}
+            onFocus={this.handleInputFocus}
+            onBlur={this.handleInputFocus}
+            value={!this.state.inputFocus ? this.state.leftInputValue : null}
+            type="number"
+          />
+          <input
+            onChange={e => this.findRightBarFromInput(e)}
+            onFocus={this.handleInputFocus}
+            onBlur={this.handleInputFocus}
+            value={!this.state.inputFocus ? this.state.rightInputValue : null}
+            type="number"
+          />
         </div>
       </div>
     );

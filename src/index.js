@@ -17,3 +17,11 @@ function App() {
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(<App />, rootElement);
+
+//ToDo
+//Calculate correct position of buttons on input
+//fix overlay
+//draw right hand scale. use flexbox for positioning and the javascript map method.
+//clean up code
+//create proptypes
+//create demo page with 3 datasets
