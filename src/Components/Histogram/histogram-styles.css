@@ -17,19 +17,14 @@
     box-sizing: border-box;
 }
 
+.bar {
+    width: 1%;
+}
+
 .total {
     margin-top: 20px;
     font-size: 34px;
     font-weight: 600;
-}
-
-.inputs {
-    margin-top: 50px;
-}
-
-.inputs input {
-    height: 30px;
-    width: 50px;
 }
 
 .scale-container {
@@ -42,4 +37,35 @@
     flex-direction: column-reverse;
     justify-content: space-between;
     color: grey;
+}
+
+.input-section {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-container {
+    border: 2px solid lightblue;
+    border-radius: 5px;
+    width: 75px;
+    margin: 0 20px;
+    padding: 5px 10px;
+}
+
+.input-container input {
+    height: 30px;
+    width: 50px;
+    border: none;
+    outline: none;
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }

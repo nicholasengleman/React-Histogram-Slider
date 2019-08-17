@@ -48,7 +48,7 @@ class Slider extends Component {
                     btn_id={"button_right"}
                     handleCalculateTranslateX={this.props.handleCalculateTranslateX}
                     translateX={
-                        this.props.translateXRight !== 0 ? this.props.translateXRight : this.props.sliderBarWidth
+                        this.props.translateXRight !== 0 ? this.props.translateXRight : this.props.sliderBarWidth - 25
                     }
                 />
             </div>

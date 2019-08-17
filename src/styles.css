@@ -1,10 +1,11 @@
 .App {
-  font-family: sans-serif;
-  text-align: center;
+    font-family: sans-serif;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .container {
-  width: 70%;
-  height: 500px;
-  margin: 50px auto;
+    width: 70%;
+    height: 500px;
+    margin: 50px auto;
 }
