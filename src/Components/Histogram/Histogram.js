@@ -1,8 +1,43 @@
 import React, { Component } from "react";
 import Slider from "./../Slider/Slider";
 
-import { data } from "./../../data";
 import "./histogram-styles.css";
+
+const defaultProps = {
+    barMargin: 0.5,
+    data: [
+        {
+            value: 1
+        },
+        {
+            value: 2
+        },
+        {
+            value: -3
+        },
+        {
+            value: 1
+        },
+        {
+            value: 2
+        },
+        {
+            value: -10
+        },
+        {
+            value: 11
+        },
+        {
+            value: -5
+        },
+        {
+            value: 7
+        }
+    ],
+    getBoundries: function(s) {
+        //console.log(s);
+    }
+};
 
 class Histogram extends Component {
     constructor(props) {
@@ -12,11 +47,9 @@ class Histogram extends Component {
 
         this.state = {
             normalizedData: [],
-            sortedData: this.sortData(this.props.data),
-            barWidth: 0,
-            maxAbsValue: this.findMaxValue(this.props.data, true),
-            maxValue: this.findMaxValue(this.props.data, false),
-            minValue: this.findMinValue(this.props.data, false),
+            barWidth: 0.5,
+            maxValue: 0,
+            minValue: 0,
             leftBoundry: 0,
             rightBoundry: 0,
             sliderBarWidth: 0,
@@ -34,54 +67,84 @@ class Histogram extends Component {
     }
 
     componentDidMount() {
-        this.normalizeData(this.state.sortedData);
+        this.setState(
+            {
+                maxValue: this.findMaxValue(this.props.data),
+                minValue: this.findMinValue(this.props.data)
+            },
+            () => this.normalizeData(this.props.data)
+        );
         this.setState({ rightBoundry: this.props.data.length - 1 });
-        this.calculateBarWidth();
+        this.calculateBarWidth(this.props.data);
         //window.addEventListener("resize", this.calculateBarWidth());
     }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.data !== this.props.data) {
+            this.calculateBarWidth(this.props.data);
+            this.setState(
+                {
+                    maxValue: this.findMaxValue(this.props.data),
+                    minValue: this.findMinValue(this.props.data)
+                },
+                () => this.normalizeData(this.props.data)
+            );
+        }
+    }
+    normalizeData = data => {
+        let normalizedData = [];
+
+        //sort the data
+        let sortedData = data.sort((a, b) => {
+            if (a.value < b.value) {
+                return -1;
+            } else if (a.value > b.value) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        //normalize the data
+        let normalizedValue =
+            (this.histogram.current.offsetHeight - 2) / (Math.abs(this.state.maxValue) + Math.abs(this.state.minValue));
+
+        sortedData.forEach(data => {
+            normalizedData.push({
+                ...data,
+                value: normalizedValue * data.value
+            });
+        });
+
+        this.setState({ normalizedData });
+    };
 
     //////////////////////////////////////
     // Utility Functions
     ///////////////////////////////////
-    calculateBarWidth = () => {
+    calculateBarWidth = data => {
         let histogramWidth = this.histogram.current.offsetWidth - 2;
-        let barWidth = histogramWidth / data.length - this.props.barMargin * 2;
+        let barWidth = histogramWidth / this.props.data.length - this.props.barMargin * 2;
         this.setState({ barWidth });
     };
 
-    findMaxValue = (data, use_absolute = true) => {
+    findMaxValue = data => {
         let max = -9999999999999999999999999999999999999;
-        if (use_absolute) {
-            data.forEach(data => {
-                if (Math.abs(data.value) > max) {
-                    max = Math.abs(data.value);
-                }
-            });
-        } else {
-            data.forEach(data => {
-                if (data.value > max) {
-                    max = data.value;
-                }
-            });
-        }
+        data.forEach(data => {
+            if (data.value > max) {
+                max = data.value;
+            }
+        });
         return max;
     };
 
-    findMinValue = (data, use_absolute = true) => {
+    findMinValue = data => {
         let min = 99999999999999999999999999999999999999;
-        if (use_absolute) {
-            data.forEach(data => {
-                if (Math.abs(data.value) < min) {
-                    min = Math.abs(data.value);
-                }
-            });
-        } else {
-            data.forEach(data => {
-                if (data.value < min) {
-                    min = data.value;
-                }
-            });
-        }
+        data.forEach(data => {
+            if (data.value < min) {
+                min = data.value;
+            }
+        });
         return min;
     };
 
@@ -93,52 +156,25 @@ class Histogram extends Component {
         });
     };
 
-    /////////////////////////////////////
-    // Functions for processing the data
-    ///////////////////////////////////
-    sortData = data => {
-        return data.sort((a, b) => {
-            if (a.value < b.value) {
-                return -1;
-            } else if (a.value > b.value) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-    };
-
-    normalizeData = data => {
-        //centered mode
-        let normalizedData = [];
-        let maxHeight = (this.histogram.current.offsetHeight - 2) / 2;
-
-        // get normalize varaiable from maxHeight / maxValue
-        let normalizedVariable = maxHeight / this.state.maxAbsValue;
-
-        //get new data set by multiplying all data by this variable
-        data.forEach(data => {
-            normalizedData.push({
-                ...data,
-                value: normalizedVariable * data.value
-            });
-        });
-
-        this.setState({ normalizedData });
-    };
-
     /////////////////////////////////////////////
     //  Functions for handling state change via input boxes
     ///////////////////////////////////////////////
-    handleInputFocus = () => {
+    handleInputFocus = e => {
+        let name;
+        if (e.target) {
+            name = e.target.name;
+        } else {
+            name = "";
+        }
         this.setState(prevState => ({
-            inputFocus: !prevState.inputFocus
+            inputFocus: !prevState.inputFocus,
+            input_with_focus: name
         }));
     };
 
     findLeftBarFromInput = e => {
         this.setState({ leftInputValue: e.target.value });
-        let leftBoundry = this.state.sortedData.findIndex(el => {
+        let leftBoundry = this.state.normalizedData.findIndex(el => {
             return el.value >= e.target.value;
         });
 
@@ -149,8 +185,8 @@ class Histogram extends Component {
     findRightBarFromInput = e => {
         let rightBoundry = 0;
         this.setState({ rightInputValue: e.target.value });
-        for (let i = this.state.sortedData.length - 1; i > 0; i--) {
-            if (this.state.sortedData[i].value <= e.target.value) {
+        for (let i = this.state.normalizedData.length - 1; i > 0; i--) {
+            if (this.state.normalizedData[i].value <= e.target.value) {
                 rightBoundry = i;
                 break;
             }
@@ -168,7 +204,7 @@ class Histogram extends Component {
             (boundry / (this.props.data.length - 1)) * shrunkSliderBarWidth +
             endBuffer +
             this.state.sliderContainerLeftPosition;
-        if (btn == "button_left") {
+        if (btn === "button_left") {
             clientX = clientX - 30;
         } else {
             clientX = clientX + 30;
@@ -194,11 +230,11 @@ class Histogram extends Component {
         let percentageTravelled = shrunkAbsoluteDistanceTravelled / shrunkSliderBarWidth;
 
         if (percentageTravelled > 0 && percentageTravelled < 1) {
-            return Math.floor(this.state.sortedData.length * percentageTravelled);
+            return Math.floor(this.state.normalizedData.length * percentageTravelled);
         } else if (percentageTravelled <= 0) {
             return 0;
         } else if (percentageTravelled >= 1) {
-            return this.state.sortedData.length - 1;
+            return this.state.normalizedData.length - 1;
         }
     };
 
@@ -239,71 +275,81 @@ class Histogram extends Component {
             this.props.getBoundries({ leftBoundry: leftCurrentBar, rightBoundry: this.state.rightBoundry });
             this.setState({
                 leftBoundry: leftCurrentBar,
-                leftInputValue: this.state.sortedData[leftCurrentBar].value
+                leftInputValue: this.state.normalizedData[leftCurrentBar].value
             });
         } else {
             let rightCurrentBar = this.findCurrentBar(this.state[`translateX_${btn_id}`], this.rightButtonAdjustment);
             this.props.getBoundries({ leftBoundry: this.state.leftBoundry, rightBoundry: rightCurrentBar });
             this.setState({
                 rightBoundry: rightCurrentBar,
-                rightInputValue: this.state.sortedData[rightCurrentBar].value
+                rightInputValue: this.state.normalizedData[rightCurrentBar].value
             });
         }
     };
 
     render() {
-        let scaleStep = (this.state.maxValue - this.state.minValue) / 4;
-        let scaleSteps = [this.state.minValue];
+        let scaleStep = (parseInt(this.state.maxValue) - parseInt(this.state.minValue)) / 4;
+        let scaleSteps = [parseInt(this.state.minValue)];
         for (let i = 1; i <= 4; i++) {
-            scaleSteps.push(scaleSteps[i - 1] + scaleStep);
+            scaleSteps.push(parseInt(scaleSteps[i - 1] + scaleStep));
         }
         return (
             <div className="histogram-container">
                 <div className="scale-container">
                     {scaleSteps.map(step => {
-                        return <div className="scale-step">{step}%</div>;
+                        return (
+                            <div key={Math.random()} className="scale-step">
+                                {step}%
+                            </div>
+                        );
                     })}
                 </div>
                 <div ref={this.histogram} className="histogram">
-                    {this.state.normalizedData.map((bar, index) => {
-                        let barMarginTop, barMarginBottom, color;
-                        if (bar.value > 0) {
-                            barMarginTop = 0;
-                            barMarginBottom = Math.abs(bar.value);
-                        } else {
-                            barMarginTop = Math.abs(bar.value);
-                            barMarginBottom = 0;
-                        }
-
-                        if (
-                            (this.state.leftBoundry <= index && index <= this.state.rightBoundry) ||
-                            (this.state.leftBoundry === 0 && this.state.rightBoundry === 0)
-                        ) {
+                    <div className="bar-container">
+                        {this.state.normalizedData.map((bar, index) => {
+                            let barMarginTop, barMarginBottom, color, barHeight;
                             if (bar.value > 0) {
-                                color = "green";
+                                barMarginTop = 0;
+                                barMarginBottom = Math.abs(bar.value);
                             } else {
-                                color = "red";
+                                barMarginTop = Math.abs(bar.value);
+                                barMarginBottom = 0;
                             }
-                        } else {
-                            color = "lightgrey";
-                        }
 
-                        let barHeight = Math.abs(bar.value);
+                            if (
+                                (this.state.leftBoundry <= index && index <= this.state.rightBoundry) ||
+                                (this.state.leftBoundry === 0 && this.state.rightBoundry === -1)
+                            ) {
+                                if (bar.value > 0) {
+                                    color = "green";
+                                } else {
+                                    color = "red";
+                                }
+                            } else {
+                                color = "lightgrey";
+                            }
 
-                        return (
-                            <div
-                                key={index}
-                                style={{
-                                    height: barHeight,
-                                    marginBottom: barMarginBottom,
-                                    marginTop: barMarginTop,
-                                    backgroundColor: color,
-                                    width: this.state.barWidth
-                                }}
-                                className="bar"
-                            />
-                        );
-                    })}
+                            if (Math.abs(bar.value) < 1) {
+                                barHeight = 1;
+                            } else {
+                                barHeight = Math.abs(bar.value);
+                            }
+
+                            return (
+                                <div
+                                    key={index}
+                                    style={{
+                                        height: barHeight,
+                                        marginBottom: barMarginBottom,
+                                        marginTop: barMarginTop,
+                                        backgroundColor: color,
+                                        width: this.state.barWidth
+                                    }}
+                                    className="bar"
+                                />
+                            );
+                        })}
+                    </div>
                 </div>
                 <Slider
                     getSliderBarDimensions={this.getSliderBarDimensions}
@@ -315,27 +361,37 @@ class Histogram extends Component {
                     translateXRight={this.state.translateX_button_right}
                 />
                 <div className="input-section">
-                    <div className="input-container">
+                    <div
+                        className={`input-container ${
+                            this.state.input_with_focus === "left_boundry" ? "selected" : ""
+                        }`}
+                    >
                         <input
+                            name="left_boundry"
                             min="-999"
                             max="999"
                             onChange={e => this.findLeftBarFromInput(e)}
                             onFocus={this.handleInputFocus}
                             onBlur={this.handleInputFocus}
-                            value={!this.state.inputFocus ? this.state.leftInputValue : null}
+                            value={!this.state.inputFocus ? parseInt(this.state.leftInputValue) : null}
                             type="number"
                         />
                         %
                     </div>
                     to
-                    <div className="input-container">
+                    <div
+                        className={`input-container ${
+                            this.state.input_with_focus === "right_boundry" ? "selected" : ""
+                        }`}
+                    >
                         <input
+                            name="right_boundry"
                             min="-999"
                             max="999"
                             onChange={e => this.findRightBarFromInput(e)}
                             onFocus={this.handleInputFocus}
                             onBlur={this.handleInputFocus}
-                            value={!this.state.inputFocus ? this.state.rightInputValue : null}
+                            value={!this.state.inputFocus ? parseInt(this.state.rightInputValue) : null}
                             type="number"
                         />
                         %
@@ -345,5 +401,7 @@ class Histogram extends Component {
         );
     }
 }
+
+Histogram.defaultProps = defaultProps;
 
 export default Histogram;

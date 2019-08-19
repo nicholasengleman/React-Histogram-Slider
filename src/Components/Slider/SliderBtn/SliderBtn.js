@@ -2,10 +2,6 @@ import React, { Component } from "react";
 import "./SliderBtn.css";
 
 class Sliderbtn extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     componentWillUnmount() {
         window.removeEventListener("mouseup", this.handleMouseUp);
     }
@@ -18,7 +14,7 @@ class Sliderbtn extends Component {
     handleMouseMove = ({ clientX }) => {
         this.props.handleCalculateTranslateX({ clientX }, this.props.btn_id);
 
-        //reports locations to prevent collision with other buttons
+        // reports locations to prevent collision with other buttons
         // this.props.setLocation(this.props.btn_id, this.state.translateX);
     };
 

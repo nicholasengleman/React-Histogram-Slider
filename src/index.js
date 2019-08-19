@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import Histogram from "./Components/Histogram/Histogram";
-import { data } from "./data";
+import { data } from "./data.js";
 
 import "./styles.css";
 
@@ -14,7 +14,7 @@ class App extends Component {
         return (
             <div className="App">
                 <div className="container">
-                    <Histogram barMargin={0.5} data={data} getBoundries={this.getBoundries} />
+                    <Histogram barMargin={10} />
                 </div>
             </div>
         );

@@ -1,7 +1,7 @@
 .sliderContainer {
     width: calc(100% - 50px);
-    height: 25px;
-    margin: 20px auto 0;
+    height: 1.5em;
+    margin: 0.5em auto 0;
     position: relative;
     border: 1px solid transparent;
 }
@@ -11,7 +11,7 @@
     width: 100%;
     height: 5px;
     background-color: #0074d9;
-    margin-top: 11px;
+    margin-top: 0.6em;
 }
 
 .sliderBarOverlay {

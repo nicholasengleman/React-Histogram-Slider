@@ -8,17 +8,19 @@
 .histogram {
     width: 90%;
     margin: 0 auto;
-    height: 90%;
+    height: 70%;
     border: 1px solid grey;
     position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+
     box-sizing: border-box;
 }
 
-.bar {
-    width: 1%;
+.bar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: -100;
 }
 
 .total {
@@ -31,7 +33,7 @@
     position: absolute;
     left: -20px;
     top: 0;
-    height: 90%;
+    height: 70%;
     width: 45px;
     display: flex;
     flex-direction: column-reverse;
@@ -40,28 +42,32 @@
 }
 
 .input-section {
-    margin-top: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 4em;
 }
 
 .input-container {
-    border: 2px solid lightblue;
+    border: 2px solid rgb(187, 187, 187);
     border-radius: 5px;
-    width: 75px;
-    margin: 0 20px;
-    padding: 5px 10px;
+    width: 5em;
+    margin: 0 1em;
+    padding: 0.2em 1em;
+}
+
+.input-container.selected {
+    border: 2px solid grey;
 }
 
 .input-container input {
     height: 30px;
-    width: 50px;
+    width: 3em;
     border: none;
     outline: none;
     font-size: 20px;
     font-weight: 600;
-    margin-right: 5px;
+    text-align: center;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
