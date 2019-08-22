@@ -7,12 +7,20 @@ class Slider extends Component {
     constructor(props) {
         super(props);
         this.sliderBar = React.createRef();
+        this.sliderWidthCalculated = false;
+        this.sliderWidth = 0;
     }
 
-    componentDidMount() {
-        const rect = this.sliderBar.current.getBoundingClientRect();
-        let sliderWidth = rect.right - rect.left;
-        this.props.getSliderBarDimensions(sliderWidth, rect.right, rect.left);
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.sliderWidthCalculated === false) {
+            const rect = this.sliderBar.current.getBoundingClientRect();
+            let sliderWidth = rect.right - rect.left;
+            if (sliderWidth !== this.sliderWidth) {
+                this.props.getSliderBarDimensions(sliderWidth, rect.right, rect.left);
+                this.sliderWidthCalculated = true;
+                this.sliderWidth = sliderWidth;
+            }
+        }
     }
 
     render() {
@@ -21,7 +29,12 @@ class Slider extends Component {
                 <div className="sliderBar" ref={this.sliderBar}>
                     <div
                         style={{
-                            right: "calc(" + this.props.sliderBarWidth + "px - " + this.props.translateXLeft + "px)",
+                            right:
+                                "calc(" +
+                                this.props.sliderBarWidth +
+                                "px - " +
+                                this.props.translateXLeft +
+                                "px)",
                             left: 0
                         }}
                         className="sliderBarOverlay"
@@ -48,7 +61,9 @@ class Slider extends Component {
                     btn_id={"button_right"}
                     handleCalculateTranslateX={this.props.handleCalculateTranslateX}
                     translateX={
-                        this.props.translateXRight !== 0 ? this.props.translateXRight : this.props.sliderBarWidth - 25
+                        this.props.translateXRight !== 0
+                            ? this.props.translateXRight
+                            : this.props.sliderBarWidth - 25
                     }
                 />
             </div>
