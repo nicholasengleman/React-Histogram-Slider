@@ -12,7 +12,7 @@ class Sliderbtn extends Component {
     };
 
     handleMouseMove = ({ clientX }) => {
-        this.props.handleCalculateTranslateX({ clientX }, this.props.btn_id);
+        this.props.handleButtonMovement({ clientX }, this.props.btn_id);
 
         // reports locations to prevent collision with other buttons
         // this.props.setLocation(this.props.btn_id, this.state.translateX);

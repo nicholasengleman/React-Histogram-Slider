@@ -6,13 +6,11 @@
 }
 
 .histogram {
-    width: 90%;
+    width: calc(100% - 60px);
     margin: 0 auto;
     height: 70%;
     border: 1px solid grey;
     position: relative;
-
-    box-sizing: border-box;
 }
 
 .bar-container {

@@ -33,7 +33,7 @@ class Slider extends Component {
                                 "calc(" +
                                 this.props.sliderBarWidth +
                                 "px - " +
-                                this.props.translateXLeft +
+                                this.props.buttonLeft +
                                 "px)",
                             left: 0
                         }}
@@ -42,8 +42,8 @@ class Slider extends Component {
                     <div
                         style={{
                             left:
-                                this.props.translateXRight !== 0
-                                    ? this.props.translateXRight
+                                this.props.buttonRight !== 0
+                                    ? this.props.buttonRight
                                     : this.props.sliderBarWidth + "px",
                             right: 0
                         }}
@@ -52,17 +52,17 @@ class Slider extends Component {
                 </div>
 
                 <SliderBtn
-                    btn_id={"button_left"}
-                    handleCalculateTranslateX={this.props.handleCalculateTranslateX}
-                    translateX={this.props.translateXLeft}
+                    btn_id={"Min"}
+                    handleButtonMovement={this.props.handleButtonMovement}
+                    translateX={this.props.buttonLeft}
                 />
 
                 <SliderBtn
-                    btn_id={"button_right"}
-                    handleCalculateTranslateX={this.props.handleCalculateTranslateX}
+                    btn_id={"Max"}
+                    handleButtonMovement={this.props.handleButtonMovement}
                     translateX={
-                        this.props.translateXRight !== 0
-                            ? this.props.translateXRight
+                        this.props.buttonRight !== 0
+                            ? this.props.buttonRight
                             : this.props.sliderBarWidth - 25
                     }
                 />
