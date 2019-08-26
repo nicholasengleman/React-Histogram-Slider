@@ -114,7 +114,7 @@ class Histogram extends Component {
 
 
     normalizeData = data => {
-        let normalizedData = [];
+        let normalizedData = [], normalizedValue;
 
         //sort the data
         let sortedData = data.sort((a, b) => {
@@ -127,10 +127,14 @@ class Histogram extends Component {
             }
         });
 
+
         //normalize the data
-        let normalizedValue =
-            (this.histogram.current.offsetHeight - 2) /
-            (Math.abs(this.state.dataSetMaxValue) + Math.abs(this.state.dataSetMinValue));
+        if((this.state.dataSetMinValue) < 0) {
+            normalizedValue = (this.histogram.current.offsetHeight - 2) / (Math.abs(this.state.dataSetMaxValue) + Math.abs(this.state.dataSetMinValue));
+        } else {
+            normalizedValue = (this.histogram.current.offsetHeight - 2) / Math.abs(this.state.dataSetMaxValue);
+        }
+
 
         sortedData.forEach(data => {
             normalizedData.push({
@@ -335,7 +339,7 @@ class Histogram extends Component {
                                     backgroundColor={color}
                                     width={this.state.barWidth}
                                     ref={this.ref[`ref_${index}`]}
-
+                                    tooltip={bar.tooltip}
                                 />
                             );
                         })}
