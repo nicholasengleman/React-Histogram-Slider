@@ -8,3 +8,18 @@
     height: 500px;
     margin: 50px auto;
 }
+
+.dataSetRow {
+    display: flex;
+    width: 80%;
+    height: 50px;
+    justify-content: center;
+    margin: 50px auto;
+}
+
+.dataSetRow button {
+    padding: 10px 20px;
+    margin: 0 50px;
+}
+
+
