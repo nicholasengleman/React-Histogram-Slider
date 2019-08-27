@@ -15,7 +15,7 @@
         cursor: pointer;
         .tooltip {
             opacity: 1;
-            top: -60px;
+            top: -65px;
         }
     }
 }
@@ -37,7 +37,7 @@
         cursor: pointer;
         .tooltip {
             opacity: 1;
-            top: -60px;
+            top: -65px;
 
         }
     }
@@ -62,7 +62,7 @@
     position: absolute;
     pointer-events: none;
     opacity: 0;
-    left: calc(50% - 90px);
+    left: calc(50% - 105px);
     transition: all 0.25s;
     border-radius: 5px;
     box-shadow: -3px 3px 3px 0 rgba(0, 0, 0, 0.4);
@@ -83,14 +83,13 @@
     .tooltipArrow::after {
         content: "";
         position: absolute;
-        top: 3em;
-        left: 5em;
-        width: 0;
-        height: 0;
+        top: 2.7em;
+        left: 5.50em;
+        width: 20px;
+        height: 20px;
+        background-color: black;
         box-sizing: border-box;
-        border: 7px solid black;
-        transform-origin: 0 0;
-        transform: rotate(-45deg);
         box-shadow: -3px 3px 3px 0 rgba(0, 0, 0, 0.4);
+        clip-path: polygon(0 0, 88% 100%, 100% 0);
     }
 }
