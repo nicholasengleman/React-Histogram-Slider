@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./Bar.module.scss"
 
+
 const Bar = React.forwardRef((props, ref) => {
     return (
         <div style={{
@@ -10,13 +11,13 @@ const Bar = React.forwardRef((props, ref) => {
             backgroundColor: props.backgroundColor,
             width: props.width
         }}
-             className={styles.bar}
+             className={styles[props.directionalClass]}
              ref={ref}
         >
             <div className={styles.tooltip}>
 
                 {
-                    props.tooltip.map(el => {
+                    props.tooltip && props.tooltip.map(el => {
                         return <p>{el}</p>
                     })
                 }

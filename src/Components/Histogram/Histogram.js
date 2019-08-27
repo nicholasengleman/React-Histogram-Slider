@@ -56,6 +56,7 @@ class Histogram extends Component {
         this.state = {
             normalizedData: [],
             barWidth: 0.5,
+            computedBarWidth: 0,
             dataSetMinValue: 0,
             dataSetMaxValue: 0,
             barMin: 0,
@@ -84,6 +85,7 @@ class Histogram extends Component {
             () => this.normalizeData(this.props.data)
         );
         this.calculateBarWidth(this.props.data);
+        console.log(this.barLocations);
 
         //window.addEventListener("resize", this.calculateBarWidth());
     }
@@ -92,10 +94,12 @@ class Histogram extends Component {
 
         if (this.barLocations.length === 0) {
             for (let ref in this.ref) {
-
                 if (this.ref[ref].current) {
                     this.barLocations.push(this.ref[ref].current.offsetLeft);
                 }
+            }
+            if(this.ref.ref_0.current) {
+                this.setState({ computedBarWidth: this.ref.ref_0.current.offsetWidth })
             }
         }
 
@@ -139,7 +143,7 @@ class Histogram extends Component {
         sortedData.forEach(data => {
             normalizedData.push({
                 ...data,
-                value: normalizedValue * data.value
+                normalizedValue: normalizedValue * data.value
             });
         });
 
@@ -231,22 +235,27 @@ class Histogram extends Component {
     /////////////////////////////////////////////
     // sets position_min and position_max from mouse movement
     //////////////////////////////////////////////
-    findInputValueFromButtonLocation = (bar_location, bar_id) => {
+    findInputValueFromButtonLocation = (button_location, bar_id) => {
         let index = 0;
         if (bar_id === "Min") {
             index = this.barLocations.findIndex(el => {
-                return el >= bar_location
+                return button_location - 25 <= el;
             });
-            this.barMinIndex = index;
+            if(index > 0) {
+                index = index - 1;
+                this.barMinIndex = index - 1;
+            } else {
+                this.barMinIndex = index;
+            }
         } else {
             for (let i = this.barLocations.length; i > 0; i--) {
-                if (bar_location > this.barLocations[i]) {
+                if (button_location - 25 > this.barLocations[i]) {
                     index = i;
                     this.barMaxIndex = i;
                     break;
                 }
             }
-        }
+       }
 
         if (this.state.normalizedData[index]) {
             return this.state.normalizedData[index].value;
@@ -305,17 +314,17 @@ class Histogram extends Component {
                         {this.state.normalizedData.map((bar, index) => {
 
                             let barMarginTop, barMarginBottom, color, barHeight;
-                            if (bar.value > 0) {
+                            if (bar.normalizedValue > 0) {
                                 barMarginTop = 0;
-                                barMarginBottom = Math.abs(bar.value);
+                                barMarginBottom = Math.abs(bar.normalizedValue);
                             } else {
-                                barMarginTop = Math.abs(bar.value);
+                                barMarginTop = Math.abs(bar.normalizedValue);
                                 barMarginBottom = 0;
                             }
 
                             if ((this.state.barMin <= (this.barLocations[index] + 25 - 6.25) &&
-                                (this.barLocations[index] + 25 - 6.25) <= this.state.barMax) || (this.barLocations.length === 0)) {
-                                if (bar.value > 0) {
+                                (this.barLocations[index] + 25 - 6.25) <= this.state.barMax - this.state.computedBarWidth) || (this.barLocations.length === 0)) {
+                                if (bar.normalizedValue > 0) {
                                     color = "green";
                                 } else {
                                     color = "red";
@@ -324,10 +333,10 @@ class Histogram extends Component {
                                 color = "lightgrey";
                             }
 
-                            if (Math.abs(bar.value) < 1) {
+                            if (Math.abs(bar.normalizedValue) < 1) {
                                 barHeight = 1;
                             } else {
-                                barHeight = Math.abs(bar.value);
+                                barHeight = Math.abs(bar.normalizedValue);
                             }
 
                             return (
@@ -339,6 +348,7 @@ class Histogram extends Component {
                                     backgroundColor={color}
                                     width={this.state.barWidth}
                                     ref={this.ref[`ref_${index}`]}
+                                    directionalClass={color === "green" ? "positiveBar" : "negativeBar"}
                                     tooltip={bar.tooltip}
                                 />
                             );
