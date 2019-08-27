@@ -31,7 +31,7 @@
     position: absolute;
     left: -20px;
     top: 0;
-    height: 70%;
+    height: 100%;
     width: 45px;
     display: flex;
     flex-direction: column-reverse;
