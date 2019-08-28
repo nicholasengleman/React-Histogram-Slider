@@ -6,6 +6,12 @@
     border: 1px solid transparent;
 }
 
+@media (max-width: 550px) {
+    .sliderContainer {
+        margin: 2em auto 3em;
+    }
+}
+
 .sliderBar {
     position: relative;
     width: 100%;

@@ -1,48 +1,33 @@
-.positiveBar {
+.Bar {
     position: relative;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+    .tooltip {
+        top: -50px;
+        .tooltipArrow {
+            bottom: 50px;
+        }
+    }
+    &:hover {
+        cursor: pointer;
+        .tooltip {
+            opacity: 1;
+            top: -65px;
+        }
+    }
+}
+
+.positiveBar {
     transform: scaleY(0);
     transform-origin: bottom;
     animation-name: barExpand;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
-    .tooltip {
-        top: -50px;
-        .tooltipArrow {
-            bottom: 50px;
-        }
-    }
-    &:hover {
-        cursor: pointer;
-        .tooltip {
-            opacity: 1;
-            top: -65px;
-        }
-    }
 }
 
 .negativeBar {
-    position: relative;
     transform: scaleY(0);
     transform-origin: top;
     animation-name: barExpand;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
-    .tooltip {
-        top: -50px;
-        .tooltipArrow {
-            bottom: 50px;
-        }
-    }
-    &:hover {
-        cursor: pointer;
-        .tooltip {
-            opacity: 1;
-            top: -65px;
-
-        }
-    }
 }
-
 
 @keyframes barExpand {
     from {
@@ -52,7 +37,6 @@
         transform: scaleY(1);
     }
 }
-
 
 .tooltip {
     width: auto;
@@ -84,7 +68,7 @@
         content: "";
         position: absolute;
         top: 2.7em;
-        left: 5.50em;
+        left: 5.5em;
         width: 20px;
         height: 20px;
         background-color: black;

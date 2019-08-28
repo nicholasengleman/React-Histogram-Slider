@@ -10,25 +10,31 @@ class App extends Component {
         super(props);
 
         this.state = {
-            dataSet: data.dataSet1
-        }
+            dataSet: data.dataSet3
+        };
     }
+
+    changeDataSet = event => {
+        this.setState({ dataSet: data[event.target.value] });
+    };
 
     getBoundries = boundries => {
         console.log(boundries);
     };
 
-    changeDataSet = (event) => {
-        this.setState({ dataSet: data[event.target.value] });
-    }
-
     render() {
         return (
             <div className="App">
                 <div className="dataSetRow">
-                    <button onClick={this.changeDataSet} value="dataSet1">Data Set #1</button>
-                    <button onClick={this.changeDataSet} value="dataSet2">Data Set #2</button>
-                    <button onClick={this.changeDataSet} value="dataSet3">Data Set #3</button>
+                    <button onClick={this.changeDataSet} value="dataSet1">
+                        Data Set #1
+                    </button>
+                    <button onClick={this.changeDataSet} value="dataSet2">
+                        Data Set #2
+                    </button>
+                    <button onClick={this.changeDataSet} value="dataSet3">
+                        Data Set #3
+                    </button>
                 </div>
                 <div className="container">
                     <Histogram barMargin={2} data={this.state.dataSet} getBoundries={this.getBoundries} />
@@ -40,4 +46,3 @@ class App extends Component {
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(<App />, rootElement);
-

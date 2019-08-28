@@ -34,10 +34,7 @@ const defaultProps = {
         {
             value: 7
         }
-    ],
-    getBoundries: function () {
-        return this.barMinIndex;
-    }
+    ]
 };
 
 class Histogram extends Component {
@@ -50,30 +47,31 @@ class Histogram extends Component {
             this.ref = {
                 ...this.ref,
                 [`ref_${e}`]: React.createRef()
-            }
+            };
         }
 
         this.state = {
             normalizedData: [],
             barWidth: 0.5,
             computedBarWidth: 0,
-            barMin: 0,
-            barMax: 0,
+            barMinLocation: 0,
+            barMaxLocation: 0,
+            barMinIndex: 0,
+            barMaxIndex: 0,
             sliderBarWidth: 0,
             sliderContainerLeftPosition: 0,
             sliderContainerRightPosition: 0,
             inputFocus: false,
             leftInputValue: 0,
-            rightInputValue: 0,
+            rightInputValue: 0
         };
 
         this.dataSetMinValue = 0;
         this.dataSetMaxValue = 0;
         this.leftButtonAdjustment = 50;
         this.rightButtonAdjustment = -25;
-        this.barMinIndex = 0;
-        this.barMaxIndex = 0;
         this.barLocations = [];
+        this.firstRun = true;
     }
 
     componentWillMount() {
@@ -84,7 +82,22 @@ class Histogram extends Component {
     componentDidMount() {
         this.normalizeData(this.props.data);
         this.calculateBarWidth(this.props.data);
-        //window.addEventListener("resize", this.calculateBarWidth());
+
+        let that = this;
+        window.addEventListener("resize", function() {
+            that.barLocations = [];
+            for (let ref in that.ref) {
+                if (that.ref[ref].current) {
+                    that.barLocations.push(that.ref[ref].current.offsetLeft);
+                }
+            }
+
+            that.calculateBarWidth();
+            that.setState({
+                barMinLocation: 0,
+                barMaxLocation: that.state.sliderBarWidth - 25
+            });
+        });
     }
 
     componentDidUpdate(prevProps) {
@@ -95,21 +108,40 @@ class Histogram extends Component {
                 }
             }
             if (this.ref.ref_0.current) {
-                this.setState({ computedBarWidth: this.ref.ref_0.current.offsetWidth })
+                this.setState({ computedBarWidth: this.ref.ref_0.current.offsetWidth });
             }
         }
 
+        if (this.firstRun) {
+            setTimeout(function() {
+                this.firstRun = false;
+            }, 2000);
+        }
+
         if (prevProps.data !== this.props.data) {
-            this.calculateBarWidth(this.props.data);
+            this.firstRun = true;
+            this.barLocations.length = 0;
             this.dataSetMinValue = this.findMinValue(this.props.data);
             this.dataSetMaxValue = this.findMaxValue(this.props.data);
+            this.calculateBarWidth(this.props.data);
             this.normalizeData(this.props.data);
+            this.setState({
+                barMinLocation: 0,
+                barMaxLocation: this.state.sliderBarWidth - 25
+            });
         }
     }
-
+    getBoundries = () => {
+        let selection = {
+            selectionMin: this.state.barMinIndex,
+            selectionMax: this.state.barMaxIndex
+        };
+        this.props.getBoundries(selection);
+    };
 
     normalizeData = data => {
-        let normalizedData = [], normalizedValue;
+        let normalizedData = [],
+            normalizedValue;
 
         //sort the data
         let sortedData = data.sort((a, b) => {
@@ -122,10 +154,11 @@ class Histogram extends Component {
             }
         });
 
-
         //normalize the data
-        if ((this.dataSetMinValue) < 0) {
-            normalizedValue = (this.histogram.current.offsetHeight - 2) / (Math.abs(this.dataSetMaxValue) + Math.abs(this.dataSetMinValue));
+        if (this.dataSetMinValue < 0) {
+            normalizedValue =
+                (this.histogram.current.offsetHeight - 2) /
+                (Math.abs(this.dataSetMaxValue) + Math.abs(this.dataSetMinValue));
         } else {
             normalizedValue = (this.histogram.current.offsetHeight - 2) / Math.abs(this.dataSetMaxValue);
         }
@@ -137,7 +170,11 @@ class Histogram extends Component {
             });
         });
 
-        this.setState({ normalizedData });
+        this.setState({
+            normalizedData,
+            leftInputValue: normalizedData[0].value,
+            rightInputValue: normalizedData[normalizedData.length - 1].value
+        });
     };
 
     //////////////////////////////////////
@@ -145,8 +182,7 @@ class Histogram extends Component {
     ///////////////////////////////////
     calculateBarWidth = data => {
         let histogramWidth = this.histogram.current.offsetWidth - 2;
-        let barWidth =
-            histogramWidth / this.props.data.length - this.props.barMargin * 2;
+        let barWidth = histogramWidth / this.props.data.length - this.props.barMargin * 2;
         this.setState({ barWidth });
     };
 
@@ -170,37 +206,14 @@ class Histogram extends Component {
         return min;
     };
 
-    getSliderBarDimensions = (
-        sliderBarWidth,
-        sliderContainerRightPosition,
-        sliderContainerLeftPosition
-    ) => {
+    getSliderBarDimensions = (sliderBarWidth, sliderContainerRightPosition, sliderContainerLeftPosition) => {
         this.setState({
             sliderBarWidth,
             sliderContainerRightPosition,
             sliderContainerLeftPosition,
-            barMax: sliderBarWidth - 25
+            barMaxLocation: sliderBarWidth - 25
         });
     };
-
-    barContainerVerticalAdjust = () => {
-        let absDataMin = Math.abs(this.state.normalizedData[0].normalizeData);
-        let absDataMax = Math.abs(this.state.normalizedData[this.state.normalizedData.length - 1].normalizedValue);
-
-        console.log("Abs Min", absDataMin);
-        // console.log(absDataMax);
-
-        let diff = Math.abs((absDataMin / 2) - (absDataMax / 2));
-
-        // console.log(diff)
-        //151px
-
-        if (absDataMin > absDataMax) {
-            return `-${diff}px`;
-        } else {
-            return `${diff}px`;
-        }
-    }
 
     /////////////////////////////////////////////
     //  Functions for handling state change via input boxes
@@ -225,7 +238,7 @@ class Histogram extends Component {
             return el.value >= e.target.value;
         });
 
-        this.setState({ barMin: this.barLocations[index] });
+        this.setState({ barMinLocation: this.barLocations[index] });
     };
 
     findRightBarFromInput = e => {
@@ -237,9 +250,8 @@ class Histogram extends Component {
                 break;
             }
         }
-        this.setState({ barMax: this.barLocations[index] });
+        this.setState({ barMaxLocation: this.barLocations[index] });
     };
-
 
     /////////////////////////////////////////////
     // sets position_min and position_max from mouse movement
@@ -250,22 +262,19 @@ class Histogram extends Component {
             index = this.barLocations.findIndex(el => {
                 return button_location - 25 <= el;
             });
-            if (index > 0) {
-                index = index - 1;
-                this.barMinIndex = index - 1;
-            } else {
-                this.barMinIndex = index;
+            if (index === -1) {
+                index = 0;
             }
+            this.setState({ barMinIndex: index }, () => this.getBoundries());
         } else {
             for (let i = this.barLocations.length; i > 0; i--) {
                 if (button_location - 25 > this.barLocations[i]) {
                     index = i;
-                    this.barMaxIndex = i;
+                    this.setState({ barMaxIndex: index }, () => this.getBoundries());
                     break;
                 }
             }
         }
-
         if (this.state.normalizedData[index]) {
             return this.state.normalizedData[index].value;
         } else {
@@ -275,34 +284,47 @@ class Histogram extends Component {
 
     handleButtonMovement = ({ clientX }, btn_id) => {
         if (this.state.normalizedData.length > 0) {
-            if (this.state.sliderContainerLeftPosition + 12.5 < clientX && clientX < this.state.sliderContainerRightPosition - 12.5) {
-
+            if (
+                this.state.sliderContainerLeftPosition + 12.5 < clientX &&
+                clientX < this.state.sliderContainerRightPosition - 12.5
+            ) {
                 if (btn_id === "Min") {
                     this.setState({
-                        barMin: clientX - this.state.sliderContainerLeftPosition - 12.5,
-                        leftInputValue: this.findInputValueFromButtonLocation(clientX - this.state.sliderContainerLeftPosition, btn_id)
+                        barMinLocation: clientX - this.state.sliderContainerLeftPosition - 12.5,
+                        leftInputValue: this.findInputValueFromButtonLocation(
+                            clientX - this.state.sliderContainerLeftPosition,
+                            btn_id
+                        )
                     });
                 } else {
                     this.setState({
-                        barMax: clientX - this.state.sliderContainerLeftPosition - 12.5,
-                        rightInputValue: this.findInputValueFromButtonLocation(clientX - this.state.sliderContainerLeftPosition, btn_id)
+                        barMaxLocation: clientX - this.state.sliderContainerLeftPosition - 12.5,
+                        rightInputValue: this.findInputValueFromButtonLocation(
+                            clientX - this.state.sliderContainerLeftPosition,
+                            btn_id
+                        )
                     });
                 }
-
             } else if (clientX < this.state.sliderContainerLeftPosition + 12.5) {
-                this.setState({ [`bar${btn_id}`]: 0 });
+                this.setState({ [`bar${btn_id}Location`]: 0 });
             } else if (this.state.sliderContainerRightPosition - 12.5 < clientX) {
                 this.setState({
-                    [`bar${btn_id}`]: this.state.sliderBarWidth - 25
+                    [`bar${btn_id}Location`]: this.state.sliderBarWidth - 25
                 });
             }
         }
     };
 
+    barContainerVerticalAdjust = () => {
+        if (this.state.normalizedData.length > 0) {
+            let absDataMin = Math.abs(this.state.normalizedData[0].normalizedValue);
+            let diff = this.histogram.current.offsetHeight - 2 - absDataMin;
+            return `${diff}px`;
+        }
+    };
 
     render() {
-        let scaleStep =
-            (parseInt(this.state.dataSetMaxValue) - parseInt(this.dataSetMinValue)) / 4;
+        let scaleStep = (parseInt(this.dataSetMaxValue) - parseInt(this.dataSetMinValue)) / 4;
         let scaleSteps = [parseInt(this.dataSetMinValue)];
         for (let i = 1; i <= 4; i++) {
             scaleSteps.push(parseInt(scaleSteps[i - 1] + scaleStep));
@@ -319,10 +341,9 @@ class Histogram extends Component {
                     })}
                 </div>
                 <div ref={this.histogram} className="histogram">
-                    <div className="bar-container" style={{ marginTop: this.barContainerVerticalAdjust() }} >
+                    <div className="bar-container" style={{ marginTop: this.barContainerVerticalAdjust() }}>
                         {this.state.normalizedData.map((bar, index) => {
-
-                            let barMarginTop, barMarginBottom, color, barHeight;
+                            let barMarginTop, barMarginBottom, color, barHeight, directionalClass;
                             if (bar.normalizedValue > 0) {
                                 barMarginTop = 0;
                                 barMarginBottom = Math.abs(bar.normalizedValue);
@@ -331,8 +352,12 @@ class Histogram extends Component {
                                 barMarginBottom = 0;
                             }
 
-                            if ((this.state.barMin <= (this.barLocations[index] + 25 - 6.25) &&
-                                (this.barLocations[index] + 25 - 6.25) <= this.state.barMax - this.state.computedBarWidth) || (this.barLocations.length === 0)) {
+                            if (
+                                (this.state.barMinLocation <= this.barLocations[index] + 25 - 6.25 &&
+                                    this.barLocations[index] + 25 - 6.25 <=
+                                        this.state.barMaxLocation - this.state.computedBarWidth) ||
+                                this.barLocations.length === 0
+                            ) {
                                 if (bar.normalizedValue > 0) {
                                     color = "green";
                                 } else {
@@ -348,6 +373,15 @@ class Histogram extends Component {
                                 barHeight = Math.abs(bar.normalizedValue);
                             }
 
+                            // if (this.firstRun) {
+                            //     directionalClass = "two";
+                            //     if (color === "green") {
+                            //         directionalClass = "positiveBar";
+                            //     } else {
+                            //         directionalClass = "negativeBar";
+                            //     }
+                            // }
+
                             return (
                                 <Bar
                                     key={index}
@@ -357,7 +391,7 @@ class Histogram extends Component {
                                     backgroundColor={color}
                                     width={this.state.barWidth}
                                     ref={this.ref[`ref_${index}`]}
-                                    directionalClass={color === "green" ? "positiveBar" : "negativeBar"}
+                                    directionalClass={directionalClass}
                                     tooltip={bar.tooltip}
                                 />
                             );
@@ -370,14 +404,14 @@ class Histogram extends Component {
                     sliderContainerLeftPosition={this.state.sliderContainerLeftPosition}
                     sliderContainerRightPosition={this.state.sliderContainerRightPosition}
                     handleButtonMovement={this.handleButtonMovement}
-                    buttonLeft={this.state.barMin}
-                    buttonRight={this.state.barMax}
+                    buttonLeft={this.state.barMinLocation}
+                    buttonRight={this.state.barMaxLocation}
                 />
                 <div className="input-section">
                     <div
                         className={`input-container ${
                             this.state.input_with_focus === "left_boundry" ? "selected" : ""
-                            }`}
+                        }`}
                     >
                         <input
                             name="left_boundry"
@@ -386,11 +420,7 @@ class Histogram extends Component {
                             onChange={e => this.findLeftBarFromInput(e)}
                             onFocus={this.handleInputFocus}
                             onBlur={this.handleInputFocus}
-                            value={
-                                !this.state.inputFocus
-                                    ? parseInt(this.state.leftInputValue)
-                                    : null
-                            }
+                            value={!this.state.inputFocus ? parseInt(this.state.leftInputValue) : null}
                             type="number"
                         />
                         %
@@ -399,7 +429,7 @@ class Histogram extends Component {
                     <div
                         className={`input-container ${
                             this.state.input_with_focus === "right_boundry" ? "selected" : ""
-                            }`}
+                        }`}
                     >
                         <input
                             name="right_boundry"
@@ -408,11 +438,7 @@ class Histogram extends Component {
                             onChange={e => this.findRightBarFromInput(e)}
                             onFocus={this.handleInputFocus}
                             onBlur={this.handleInputFocus}
-                            value={
-                                !this.state.inputFocus
-                                    ? parseInt(this.state.rightInputValue)
-                                    : null
-                            }
+                            value={!this.state.inputFocus ? parseInt(this.state.rightInputValue) : null}
                             type="number"
                         />
                         %

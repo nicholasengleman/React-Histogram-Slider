@@ -161,7 +161,87 @@ export const data = {
         },
         {
             id: 931222,
-            value: -2344,
+            value: -234,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 233,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 234,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 233,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 656,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -23,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -20,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -34,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 543,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 10,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -23,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -11,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 500,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -33,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: 343,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -55,
+            tooltip: ["Bitcoin", "453%"]
+        },
+        {
+            id: 931222,
+            value: -234,
             tooltip: ["Bitcoin", "453%"]
         },
         {
@@ -204,7 +284,5 @@ export const data = {
             value: 543,
             tooltip: ["Bitcoin", "453%"]
         }
-    ],
+    ]
 };
-
-
