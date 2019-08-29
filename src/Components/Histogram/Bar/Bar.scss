@@ -1,7 +1,6 @@
 .Bar {
     position: relative;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
+
     .tooltip {
         top: -50px;
         .tooltipArrow {
@@ -21,12 +20,16 @@
     transform: scaleY(0);
     transform-origin: bottom;
     animation-name: barExpand;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
 }
 
 .negativeBar {
     transform: scaleY(0);
     transform-origin: top;
     animation-name: barExpand;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
 }
 
 @keyframes barExpand {

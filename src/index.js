@@ -19,7 +19,7 @@ class App extends Component {
     };
 
     getBoundries = boundries => {
-        console.log(boundries);
+       // console.log(boundries);
     };
 
     render() {

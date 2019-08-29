@@ -2,6 +2,7 @@ import React from "react";
 import "./Bar.scss";
 
 const Bar = React.forwardRef((props, ref) => {
+
     return (
         <div
             style={{

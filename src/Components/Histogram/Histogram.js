@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import Slider from "./../Slider/Slider";
 import Bar from "./Bar/Bar";
 
@@ -52,26 +52,30 @@ class Histogram extends Component {
 
         this.state = {
             normalizedData: [],
+
             barWidth: 0.5,
             computedBarWidth: 0,
+
             barMinLocation: 0,
             barMaxLocation: 0,
-            barMinIndex: 0,
-            barMaxIndex: 0,
-            sliderBarWidth: 0,
+
+            sliderContainerWidth: 0,
             sliderContainerLeftPosition: 0,
             sliderContainerRightPosition: 0,
+
             inputFocus: false,
             leftInputValue: 0,
-            rightInputValue: 0
+            rightInputValue: 0,
+
+            attachAnimationClasses: true
         };
 
         this.dataSetMinValue = 0;
         this.dataSetMaxValue = 0;
+        this.buttonWidth = 25.125;
         this.leftButtonAdjustment = 50;
-        this.rightButtonAdjustment = -25;
+        this.rightButtonAdjustment = -this.buttonWidth;
         this.barLocations = [];
-        this.firstRun = true;
     }
 
     componentWillMount() {
@@ -84,7 +88,7 @@ class Histogram extends Component {
         this.calculateBarWidth(this.props.data);
 
         let that = this;
-        window.addEventListener("resize", function() {
+        window.addEventListener("resize", function () {
             that.barLocations = [];
             for (let ref in that.ref) {
                 if (that.ref[ref].current) {
@@ -95,12 +99,13 @@ class Histogram extends Component {
             that.calculateBarWidth();
             that.setState({
                 barMinLocation: 0,
-                barMaxLocation: that.state.sliderBarWidth - 25
+                barMaxLocation: that.state.sliderContainerWidth - this.buttonWidth
             });
         });
     }
 
     componentDidUpdate(prevProps) {
+        let timeout;
         if (this.barLocations.length === 0) {
             for (let ref in this.ref) {
                 if (this.ref[ref].current) {
@@ -108,18 +113,11 @@ class Histogram extends Component {
                 }
             }
             if (this.ref.ref_0.current) {
-                this.setState({ computedBarWidth: this.ref.ref_0.current.offsetWidth });
+                this.setState({computedBarWidth: this.ref.ref_0.current.offsetWidth});
             }
         }
 
-        if (this.firstRun) {
-            setTimeout(function() {
-                this.firstRun = false;
-            }, 2000);
-        }
-
         if (prevProps.data !== this.props.data) {
-            this.firstRun = true;
             this.barLocations.length = 0;
             this.dataSetMinValue = this.findMinValue(this.props.data);
             this.dataSetMaxValue = this.findMaxValue(this.props.data);
@@ -127,14 +125,16 @@ class Histogram extends Component {
             this.normalizeData(this.props.data);
             this.setState({
                 barMinLocation: 0,
-                barMaxLocation: this.state.sliderBarWidth - 25
+                barMaxLocation: this.state.sliderContainerWidth - this.buttonWidth,
+                attachAnimationClasses: true
             });
         }
     }
+
     getBoundries = () => {
         let selection = {
-            selectionMin: this.state.barMinIndex,
-            selectionMax: this.state.barMaxIndex
+            selectionMin: parseFloat(this.state.leftInputValue),
+            selectionMax: parseFloat(this.state.rightInputValue)
         };
         this.props.getBoundries(selection);
     };
@@ -155,12 +155,12 @@ class Histogram extends Component {
         });
 
         //normalize the data
-        if (this.dataSetMinValue < 0) {
-            normalizedValue =
-                (this.histogram.current.offsetHeight - 2) /
-                (Math.abs(this.dataSetMaxValue) + Math.abs(this.dataSetMinValue));
-        } else {
+        if (this.dataSetMinValue < 0 && this.dataSetMaxValue > 0) {
+            normalizedValue = (this.histogram.current.offsetHeight - 2) / (Math.abs(this.dataSetMaxValue) + Math.abs(this.dataSetMinValue));
+        } else if(this.dataSetMinValue > 0) {
             normalizedValue = (this.histogram.current.offsetHeight - 2) / Math.abs(this.dataSetMaxValue);
+        } else if(this.dataSetMaxValue < 0) {
+            normalizedValue = (this.histogram.current.offsetHeight - 2) / Math.abs(this.dataSetMinValue);
         }
 
         sortedData.forEach(data => {
@@ -183,7 +183,7 @@ class Histogram extends Component {
     calculateBarWidth = data => {
         let histogramWidth = this.histogram.current.offsetWidth - 2;
         let barWidth = histogramWidth / this.props.data.length - this.props.barMargin * 2;
-        this.setState({ barWidth });
+        this.setState({barWidth});
     };
 
     findMaxValue = data => {
@@ -206,12 +206,12 @@ class Histogram extends Component {
         return min;
     };
 
-    getSliderBarDimensions = (sliderBarWidth, sliderContainerRightPosition, sliderContainerLeftPosition) => {
+    getSliderBarDimensions = (sliderContainerWidth, sliderContainerRightPosition, sliderContainerLeftPosition) => {
         this.setState({
-            sliderBarWidth,
+            sliderContainerWidth,
             sliderContainerRightPosition,
             sliderContainerLeftPosition,
-            barMaxLocation: sliderBarWidth - 25
+            barMaxLocation: sliderContainerWidth - this.buttonWidth
         });
     };
 
@@ -232,45 +232,44 @@ class Histogram extends Component {
     };
 
     findLeftBarFromInput = e => {
-        this.setState({ leftInputValue: e.target.value });
+        this.setState({leftInputValue: e.target.value}, () => this.getBoundries());
 
         let index = this.state.normalizedData.findIndex(el => {
             return el.value >= e.target.value;
         });
 
-        this.setState({ barMinLocation: this.barLocations[index] });
+        this.setState({barMinLocation: this.barLocations[index]});
     };
 
     findRightBarFromInput = e => {
         let index = 0;
-        this.setState({ rightInputValue: e.target.value });
+        this.setState({rightInputValue: e.target.value}, () => this.getBoundries());
         for (let i = this.state.normalizedData.length - 1; i > 0; i--) {
             if (this.state.normalizedData[i].value <= e.target.value) {
                 index = i;
                 break;
             }
         }
-        this.setState({ barMaxLocation: this.barLocations[index] });
+        this.setState({barMaxLocation: this.barLocations[index]});
     };
 
     /////////////////////////////////////////////
     // sets position_min and position_max from mouse movement
     //////////////////////////////////////////////
-    findInputValueFromButtonLocation = (button_location, bar_id) => {
+    findInputValueFromButtonLocation = (mouse_location, bar_id) => {
         let index = 0;
+
         if (bar_id === "Min") {
             index = this.barLocations.findIndex(el => {
-                return button_location - 25 <= el;
+                return ((mouse_location - this.buttonWidth) <= el);
             });
             if (index === -1) {
                 index = 0;
             }
-            this.setState({ barMinIndex: index }, () => this.getBoundries());
         } else {
             for (let i = this.barLocations.length; i > 0; i--) {
-                if (button_location - 25 > this.barLocations[i]) {
+                if ((mouse_location - this.buttonWidth) >= this.barLocations[i]) {
                     index = i;
-                    this.setState({ barMaxIndex: index }, () => this.getBoundries());
                     break;
                 }
             }
@@ -282,34 +281,35 @@ class Histogram extends Component {
         }
     };
 
-    handleButtonMovement = ({ clientX }, btn_id) => {
+    handleButtonMovement = ({clientX}, btn_id) => {
         if (this.state.normalizedData.length > 0) {
             if (
-                this.state.sliderContainerLeftPosition + 12.5 < clientX &&
-                clientX < this.state.sliderContainerRightPosition - 12.5
+                this.state.sliderContainerLeftPosition + (this.buttonWidth / 2) < clientX &&
+                clientX < this.state.sliderContainerRightPosition - (this.buttonWidth / 2)
             ) {
                 if (btn_id === "Min") {
-                    this.setState({
-                        barMinLocation: clientX - this.state.sliderContainerLeftPosition - 12.5,
-                        leftInputValue: this.findInputValueFromButtonLocation(
-                            clientX - this.state.sliderContainerLeftPosition,
-                            btn_id
-                        )
-                    });
+
+                    this.setState(
+                        {
+                            barMinLocation: clientX - this.state.sliderContainerLeftPosition - (this.buttonWidth / 2),
+                            leftInputValue: this.findInputValueFromButtonLocation(clientX - this.state.sliderContainerLeftPosition, btn_id)
+                        },
+                        () => this.getBoundries()
+                    );
                 } else {
-                    this.setState({
-                        barMaxLocation: clientX - this.state.sliderContainerLeftPosition - 12.5,
-                        rightInputValue: this.findInputValueFromButtonLocation(
-                            clientX - this.state.sliderContainerLeftPosition,
-                            btn_id
-                        )
-                    });
+                    this.setState(
+                        {
+                            barMaxLocation: clientX - this.state.sliderContainerLeftPosition - (this.buttonWidth / 2),
+                            rightInputValue: this.findInputValueFromButtonLocation(clientX - this.state.sliderContainerLeftPosition, btn_id)
+                        },
+                        () => this.getBoundries()
+                    );
                 }
-            } else if (clientX < this.state.sliderContainerLeftPosition + 12.5) {
-                this.setState({ [`bar${btn_id}Location`]: 0 });
-            } else if (this.state.sliderContainerRightPosition - 12.5 < clientX) {
+            } else if (clientX < this.state.sliderContainerLeftPosition + (this.buttonWidth / 2)) {
+                this.setState({[`bar${btn_id}Location`]: 0});
+            } else if (this.state.sliderContainerRightPosition - (this.buttonWidth / 2) < clientX) {
                 this.setState({
-                    [`bar${btn_id}Location`]: this.state.sliderBarWidth - 25
+                    [`bar${btn_id}Location`]: this.state.sliderContainerWidth - this.buttonWidth
                 });
             }
         }
@@ -317,8 +317,17 @@ class Histogram extends Component {
 
     barContainerVerticalAdjust = () => {
         if (this.state.normalizedData.length > 0) {
-            let absDataMin = Math.abs(this.state.normalizedData[0].normalizedValue);
-            let diff = this.histogram.current.offsetHeight - 2 - absDataMin;
+            let adjustment = 0;
+
+            if(this.dataSetMinValue < 0 && this.dataSetMaxValue > 0) {
+                adjustment = Math.abs(this.state.normalizedData[0].normalizedValue);
+            }
+
+            if(this.dataSetMaxValue < 0) {
+                adjustment = Math.abs(this.state.normalizedData[0].normalizedValue);
+            }
+
+            let diff = this.histogram.current.offsetHeight - 2 - adjustment;
             return `${diff}px`;
         }
     };
@@ -341,7 +350,7 @@ class Histogram extends Component {
                     })}
                 </div>
                 <div ref={this.histogram} className="histogram">
-                    <div className="bar-container" style={{ marginTop: this.barContainerVerticalAdjust() }}>
+                    <div className="bar-container" style={{marginTop: this.barContainerVerticalAdjust()}}>
                         {this.state.normalizedData.map((bar, index) => {
                             let barMarginTop, barMarginBottom, color, barHeight, directionalClass;
                             if (bar.normalizedValue > 0) {
@@ -353,10 +362,9 @@ class Histogram extends Component {
                             }
 
                             if (
-                                (this.state.barMinLocation <= this.barLocations[index] + 25 - 6.25 &&
-                                    this.barLocations[index] + 25 - 6.25 <=
-                                        this.state.barMaxLocation - this.state.computedBarWidth) ||
-                                this.barLocations.length === 0
+                                (this.state.barMinLocation <= this.barLocations[index] + this.buttonWidth - (this.buttonWidth / 2) &&
+                                    this.barLocations[index] + this.buttonWidth - (this.buttonWidth / 2)  <= this.state.barMaxLocation - this.state.computedBarWidth)
+                                    || this.barLocations.length === 0
                             ) {
                                 if (bar.normalizedValue > 0) {
                                     color = "green";
@@ -373,8 +381,7 @@ class Histogram extends Component {
                                 barHeight = Math.abs(bar.normalizedValue);
                             }
 
-                            // if (this.firstRun) {
-                            //     directionalClass = "two";
+                            // if (this.state.attachAnimationClasses) {
                             //     if (color === "green") {
                             //         directionalClass = "positiveBar";
                             //     } else {
@@ -400,7 +407,7 @@ class Histogram extends Component {
                 </div>
                 <Slider
                     getSliderBarDimensions={this.getSliderBarDimensions}
-                    sliderBarWidth={this.state.sliderBarWidth}
+                    sliderContainerWidth={this.state.sliderContainerWidth}
                     sliderContainerLeftPosition={this.state.sliderContainerLeftPosition}
                     sliderContainerRightPosition={this.state.sliderContainerRightPosition}
                     handleButtonMovement={this.handleButtonMovement}

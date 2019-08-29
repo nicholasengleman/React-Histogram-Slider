@@ -40,7 +40,7 @@ class Slider extends Component {
                 <div className="sliderBar" ref={this.sliderBar}>
                     <div
                         style={{
-                            right: "calc(" + this.props.sliderBarWidth + "px - " + this.props.buttonLeft + "px)",
+                            right: "calc(" + this.props.sliderContainerWidth + "px - " + this.props.buttonLeft + "px)",
                             left: 0
                         }}
                         className="sliderBarOverlay"
@@ -50,7 +50,7 @@ class Slider extends Component {
                             left:
                                 this.props.buttonRight !== 0
                                     ? this.props.buttonRight
-                                    : this.props.sliderBarWidth + "px",
+                                    : this.props.sliderContainerWidth + "px",
                             right: 0
                         }}
                         className="sliderBarOverlay"
@@ -66,7 +66,7 @@ class Slider extends Component {
                 <SliderBtn
                     btn_id={"Max"}
                     handleButtonMovement={this.props.handleButtonMovement}
-                    translateX={this.props.buttonRight !== 0 ? this.props.buttonRight : this.props.sliderBarWidth - 25}
+                    translateX={this.props.buttonRight !== 0 ? this.props.buttonRight : this.props.sliderContainerWidth - this.buttonWidth}
                 />
             </div>
         );
