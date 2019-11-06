@@ -1,23 +1,19 @@
 .sliderContainer {
-    width: 100%;
-    height: 1.5em;
-    margin: 0.5em auto 0;
+    /* width of histogram div plus width of each button*/
+    width: calc(100% - 55px);
+    height: 2em;
+    margin-left: 55px;
     position: relative;
     border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    float: right;
 }
-
-@media (max-width: 550px) {
-    .sliderContainer {
-        margin: 2em auto 3em;
-    }
-}
-
 .sliderBar {
     position: relative;
     width: 100%;
     height: 5px;
     background-color: #0074d9;
-    margin-top: 0.6em;
 }
 
 .sliderBarOverlay {

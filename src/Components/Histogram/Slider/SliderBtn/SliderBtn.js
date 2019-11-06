@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import "./SliderBtn.css";
 
 class Sliderbtn extends Component {
@@ -35,5 +36,11 @@ class Sliderbtn extends Component {
         );
     }
 }
+
+Sliderbtn.propTypes = {
+    btn_id: PropTypes.string,
+    handleButtonMovement: PropTypes.func,
+    translateX: PropTypes.number
+};
 
 export default Sliderbtn;

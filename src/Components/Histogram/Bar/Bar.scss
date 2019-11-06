@@ -1,17 +1,13 @@
-.Bar {
+.bar {
     position: relative;
-
-    .tooltip {
-        top: -50px;
-        .tooltipArrow {
-            bottom: 50px;
-        }
+    .tooltip .tooltipArrow {
+        bottom: 40px;
     }
     &:hover {
         cursor: pointer;
         .tooltip {
+            top: -57px;
             opacity: 1;
-            top: -65px;
         }
     }
 }
@@ -22,6 +18,8 @@
     animation-name: barExpand;
     animation-duration: 1s;
     animation-fill-mode: forwards;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
 }
 
 .negativeBar {
@@ -30,37 +28,43 @@
     animation-name: barExpand;
     animation-duration: 1s;
     animation-fill-mode: forwards;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
 }
 
 @keyframes barExpand {
-    from {
+    0% {
         transform: scaleY(0);
     }
-    to {
+
+    100% {
         transform: scaleY(1);
     }
 }
 
 .tooltip {
-    width: auto;
-    height: auto;
+    width: max-content;
     background-color: black;
     color: white;
     position: absolute;
     pointer-events: none;
     opacity: 0;
-    left: calc(50% - 105px);
+    font-size: 12px;
+    text-align: center;
+    top: -50px;
+    right: 5px;
     transition: all 0.25s;
-    border-radius: 5px;
+    border-radius: 3px;
     box-shadow: -3px 3px 3px 0 rgba(0, 0, 0, 0.4);
-    padding: 10px 30px;
+    display: inline-block;
+    padding: 7px 15px;
     p {
         margin: 0;
     }
 
     .tooltipArrow {
         position: absolute;
-        left: 0;
+        left: 100%;
         margin: 0;
         box-sizing: border-box;
         box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
@@ -70,13 +74,13 @@
     .tooltipArrow::after {
         content: "";
         position: absolute;
-        top: 2.7em;
-        left: 5.5em;
+        top: 3em;
+        right: 0;
         width: 20px;
-        height: 20px;
+        height: 15px;
         background-color: black;
         box-sizing: border-box;
         box-shadow: -3px 3px 3px 0 rgba(0, 0, 0, 0.4);
-        clip-path: polygon(0 0, 88% 100%, 100% 0);
+        clip-path: polygon(0 0, 100% 100%, 100% 0);
     }
 }

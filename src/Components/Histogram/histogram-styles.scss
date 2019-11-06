@@ -1,0 +1,84 @@
+.histogramComponent {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .mainSection {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        .scaleContainer {
+            height: 100%;
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: space-between;
+            color: grey;
+            font-size: 13px;
+            padding-right: 2%;
+        }
+        .histogram {
+            width: calc(100% - 55px);
+            height: 100%;
+            margin: 0 auto;
+            border: 1px solid #ebebed;
+            position: relative;
+            &.showSlider {
+                width: calc(100% - 100px);
+            }
+            .bar-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: relative;
+                height: 0;
+            }
+        }
+    }
+}
+
+.input-section {
+    margin: 5px 0 0 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 4em;
+    .input-container {
+        border: 2px solid rgb(187, 187, 187);
+        border-radius: 5px;
+        width: 5em;
+        margin: 0 1em;
+        padding: 0.2em 1em;
+        z-index: 100;
+        background-color: white;
+        @media (max-width: 550px) {
+            margin: 0.5em;
+        }
+        &.selected {
+            border: 2px solid grey;
+        }
+        input {
+            height: 2em;
+            width: 4em;
+            box-shadow: none;
+            border: none;
+            outline: none;
+            font-size: 1em;
+            font-weight: 600;
+            text-align: center;
+            background-color: white;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    }
+}
