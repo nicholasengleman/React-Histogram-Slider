@@ -13,23 +13,23 @@
 }
 
 .positiveBar {
-    transform: scaleY(0);
-    transform-origin: bottom;
-    animation-name: barExpand;
-    animation-duration: 1s;
-    animation-fill-mode: forwards;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    // transform: scaleY(0);
+    // transform-origin: bottom;
+    // animation-name: barExpand;
+    // animation-duration: 1s;
+    // animation-fill-mode: forwards;
+    // border-top-left-radius: 2px;
+    // border-top-right-radius: 2px;
 }
 
 .negativeBar {
-    transform: scaleY(0);
-    transform-origin: top;
-    animation-name: barExpand;
-    animation-duration: 1s;
-    animation-fill-mode: forwards;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
+    // transform: scaleY(0);
+    // transform-origin: top;
+    // animation-name: barExpand;
+    // animation-duration: 1s;
+    // animation-fill-mode: forwards;
+    // border-bottom-left-radius: 2px;
+    // border-bottom-right-radius: 2px;
 }
 
 @keyframes barExpand {
