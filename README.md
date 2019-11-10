@@ -1,4 +1,4 @@
-### [Demo](https://uipe0.csb.app/)
+### [Demo](https://6j7nf.csb.app/)
 
 ### [Github](https://github.com/nicholasengleman/React-Histogram-Slider)
 

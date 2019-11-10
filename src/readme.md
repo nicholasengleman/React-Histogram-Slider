@@ -1,4 +1,4 @@
-### [Demo](https://uipe0.csb.app/)
+### [Demo](https://0rdyn.csb.app/)
 
 ### [Github](https://github.com/nicholasengleman/React-Histogram-Slider)
 
@@ -6,7 +6,10 @@
 
 -   supports negative and positive, or only negative or only positive values
 -   supports tooltips
--   responsive, expanding to fill its container
+-   responsive, fills its container
+-   subscribe to filtered data by passing a function to the getBoundries props
+-   pass in button/filter presets by passing an object to the buttonPresets prop
+-   slider and input can be hidden
 
 ### Interface/Props
 
@@ -34,24 +37,61 @@
 
 2. barMargin Prop(number):
 
--   px distance between each bar
+-   percentage of max available space available to bar. 100% means each bar will touch its neighbor. Default is 0.7;
 
 3. getBoundries(function):
 
 -   subscription function returning the min and max of the selected range
 
-```
- <Histogram data={data} barMargin={2} getBoundries={this.getBoundries} />
-```
+4.  buttonPresets prop object for passing in preset positions for the buttons with keys of "selectionMin" and "selectionMax".
+
+        ```
+          preSets = {
+            selectionMin : 0.1,
+            selectionMax : 2
+          }
+        ```
+
+5) showSlider prop
+
+-   set to false to hide the slider. Default is true.
+
+6. showInputs prop
+
+-   set to false to hide the inputs. Default is true.
+
+7. scaleIncrements prop
+
+-   controls how many numbers appear on the scale. Default is 5.
+
+    ```
+    <Histogram data={data}
+              barMargin={0.8}
+              getBoundries={this.getBoundries}
+              buttonPresets={{ "selectionMin" : 0.3, "selectionMax: 2}
+              scaleIncrements={3}}
+              showSlider={false}
+    />
+    ```
 
 ### Changelist
+
+0.2.0
+
+-   improved tooltips.
+-   greatly improved performance
+-   added animation to bars
+-   added ability to pass in presets via the buttonPresets prop
+-   made slider and inputs optional
+-   make number of number on scale customizable
+-   added proptypes
 
 0.1.0
 
 -   fixed many bugs
--   improved responsiveness
 -   added tooltips
--   added function for subscribing to selected data
+-   improved responsiveness
+-
 
 0.0.9
 
@@ -81,7 +121,3 @@
 
 -   initial publish
 
-### Upcoming
-
--   bar animation
--   color customization
