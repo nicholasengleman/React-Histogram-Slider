@@ -5,14 +5,25 @@ import "./SliderBtn.css";
 class Sliderbtn extends Component {
     componentWillUnmount() {
         window.removeEventListener("mouseup", this.handleMouseUp);
+        window.removeEventListener("touchend", this.handleMouseUp);
     }
 
     handleMouseDown = ({ clientX }) => {
         window.addEventListener("mousemove", this.handleMouseMove);
+        window.addEventListener("touchmove", this.handleMouseMove);
+
         window.addEventListener("mouseup", this.handleMouseUp);
+        window.addEventListener("touchend", this.handleMouseUp);
     };
 
-    handleMouseMove = ({ clientX }) => {
+    handleMouseMove = e => {
+        let clientX;
+        if (e.clientX) {
+            clientX = e.clientX;
+        } else {
+            clientX = e.touches[0].clientX;
+        }
+
         this.props.handleButtonMovement({ clientX }, this.props.btn_id);
 
         // reports locations to prevent collision with other buttons
@@ -21,7 +32,9 @@ class Sliderbtn extends Component {
 
     handleMouseUp = () => {
         window.removeEventListener("mousemove", this.handleMouseMove);
+        window.removeEventListener("touchmove", this.handleMouseMove);
         window.removeEventListener("mouseup", this.handleMouseUp);
+        window.removeEventListener("touchend", this.handleMouseUp);
     };
 
     render() {
@@ -32,6 +45,7 @@ class Sliderbtn extends Component {
                     transform: "translateX(" + this.props.translateX + "px)"
                 }}
                 onMouseDown={this.handleMouseDown}
+                onTouchStart={this.handleMouseDown}
             />
         );
     }

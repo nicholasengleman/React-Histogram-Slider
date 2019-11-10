@@ -6,16 +6,18 @@
     position: absolute;
     border-radius: 50%;
     left: 0;
+    touch-action: auto;
     bottom: 0;
     background-color: #4050b9;
     border: 0.5px solid #ebebed;
     transition: background-color 0.1s, box-shadow 0.1s;
-    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2),
+        0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12);
 }
 
 .slider-btn:hover {
     cursor: pointer;
-    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+        0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
     background-color: #262f6d;
 }

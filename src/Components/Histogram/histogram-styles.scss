@@ -46,10 +46,12 @@
     justify-content: center;
     align-items: center;
     height: 4em;
+    @media (max-width: 500px) {
+        margin: 5px 0 0 0;
+    }
     .input-container {
         border: 2px solid rgb(187, 187, 187);
         border-radius: 5px;
-        width: 5em;
         margin: 0 1em;
         padding: 0.2em 1em;
         z-index: 100;
